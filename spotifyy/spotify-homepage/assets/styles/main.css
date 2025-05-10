@@ -1,0 +1,76 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: normal;
+}
+
+a {
+  color: #1db954;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header, .footer {
+  background-color: #181818;
+  padding: 20px;
+  text-align: center;
+}
+
+.track-card {
+  background-color: #282828;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  transition: transform 0.2s;
+}
+
+.track-card:hover {
+  transform: scale(1.05);
+}
+
+.track-card img {
+  border-radius: 8px;
+}
+
+.track-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+.artist-name {
+  font-size: 14px;
+  color: #b3b3b3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .header, .footer {
+    padding: 15px;
+  }
+
+  .track-card {
+    padding: 10px;
+  }
+}

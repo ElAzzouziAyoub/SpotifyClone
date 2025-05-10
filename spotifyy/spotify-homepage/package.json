@@ -1,0 +1,22 @@
+{
+  "name": "spotify-homepage",
+  "version": "1.0.0",
+  "description": "A Nuxt.js project that fetches songs from the Spotify API and lists them with a design that matches Spotify's aesthetic.",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start"
+  },
+  "dependencies": {
+    "nuxt": "^2.15.8",
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-module": "^3.0.0",
+    "eslint": "^7.0.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-prettier": "^3.0.0"
+  }
+}
