@@ -8,12 +8,12 @@ const artists = ref([]);
 const inputText = ref("");
 const q = collection(db, "artists");
 
-let unsubscribe; // Declare unsubscribe outside to manage it properly
+let unsubscribe;
 
 onMounted(() => {
-  // Subscribe to Firestore updates
+  
   unsubscribe = onSnapshot(q, (querySnapshot) => {
-    artists.value = []; // Clear the array before adding new data
+    artists.value = []; 
     querySnapshot.forEach((doc) => {
       artists.value.push({
         id: doc.id,
@@ -32,10 +32,10 @@ onUnmounted(() => {
 
 <template>
   <div class="bg-gray-900 text-white min-h-screen">
-    <!-- Navbar -->
+    
     <NavBar />
 
-    <!-- Hero Section -->
+    
     <section class="bg-gradient-to-r from-green-500 to-blue-500 text-center py-20">
       <h2 class="text-4xl font-bold mb-4">Discover Artists</h2>
       <p class="text-lg text-gray-200 mb-6">Explore your favorite artists and their music.</p>
@@ -47,7 +47,7 @@ onUnmounted(() => {
       />
     </section>
 
-    <!-- Artists Grid -->
+    
     <section class="p-6">
       <div v-if="artists.length === 0" class="text-center text-gray-400">
         No artists available.
@@ -65,7 +65,9 @@ onUnmounted(() => {
             alt="Artist Image"
             class="w-full h-48 object-cover rounded-lg mb-4"
           />
-          <h3 class="text-lg font-semibold truncate">{{ artist.name }}</h3>
+          <h3 class="text-lg font-semibold truncate">
+            <NuxtLink :to="`/profiles/${artist.id}`"> {{ artist.name }}</NuxtLink>
+          </h3>
           <p class="text-sm text-gray-400 truncate">{{ artist.description }}</p>
         </div>
       </div>

@@ -40,14 +40,14 @@ const handleSubmit = async () => {
   }
 
   try {
-    // Upload files to Cloudinary
+    
     const imageUrl = await uploadToCloudinary(imageFile.value, 'covers')
     const audioUrl = await uploadToCloudinary(audioFile.value, 'tracks')
 
-    // Log the uploaded data
+    
     console.log("Uploaded:", { title: title.value, description: description.value, imageUrl, audioUrl })
 
-    // Save to Firebase (optional)
+    
     await setDoc(doc(db, 'songs', `${title.value}${auth.currentUser.uid}`), {
       id : `${title.value}${auth.currentUser.uid}`,
       title: title.value,
@@ -61,12 +61,12 @@ const handleSubmit = async () => {
 
     await setDoc(doc(db, 'artists', auth.currentUser.uid), {
       name : auth.currentUser.displayName,
-      //push the new song ID to the artist's songs array, the song
+      id : auth.currentUser.uid,
       songs : [`${title.value}${auth.currentUser.uid}`] },
       { merge: true })
 
     alert("Song uploaded successfully!")
-    router.push('/HomePage') // Navigate back to the homepage
+    router.push('/HomePage')
   } catch (error) {
     console.error("Error uploading song:", error)
     alert("Failed to upload song. Please try again.")

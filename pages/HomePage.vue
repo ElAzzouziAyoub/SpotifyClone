@@ -2,7 +2,7 @@
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/firebase";
 import { ref } from "vue";
-import { doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc , getDoc } from "firebase/firestore"; 
 import {auth} from "@/firebase"
 
 
@@ -26,22 +26,43 @@ const unsubscribe = onSnapshot(q, (querySnapshot) => {
 });
 
 
-const addtoPlaylist = (songID) => {
-  const PlaylistRef = doc(db, 'playlist', auth.currentUser.uid);
-  setDoc(PlaylistRef, { 
-    OwnerID : auth.currentUser.uid ,
-    songs : [songID]
-  }, { merge: true });
-}
+const addtoPlaylist = async (songID) => {
+  try {
+    const PlaylistRef = doc(db, 'playlist', auth.currentUser.uid);
+
+    
+    const playlistSnap = await getDoc(PlaylistRef);
+
+    let existingSongs = [];
+    if (playlistSnap.exists()) {
+      existingSongs = playlistSnap.data().songs || []; 
+    }
+
+    
+    if (!existingSongs.includes(songID)) {
+      existingSongs.push(songID);
+
+      
+      await setDoc(PlaylistRef, {
+        OwnerID: auth.currentUser.uid,
+        songs: existingSongs,
+      }, { merge: true });
+    } else {
+      console.log('Song is already in the playlist');
+    }
+  } catch (error) {
+    console.error('Error adding song to playlist:', error);
+  }
+};
 </script>
 
 <template>
   <div class="bg-gray-900 text-white min-h-screen">
-    <!-- Navbar -->
+    
 
     <NavBar />
 
-    <!-- Hero Section -->
+    
     <section class="bg-gradient-to-r from-green-500 to-blue-500 text-center py-20">
       <h2 class="text-4xl font-bold mb-4">Welcome to Spotify</h2>
       <p class="text-lg text-gray-200 mb-6">Discover millions of songs and podcasts.</p>
@@ -54,14 +75,16 @@ const addtoPlaylist = (songID) => {
       class="bg-[#1f1f1f] mt-5 w-[600px] h-[40px] rounded mb-[20px] ">
     </section>
 
-    <!-- Content Grid -->
+    
     <section class="p-6">
+      
+
       <div v-if="songs.length === 0" class="text-center text-gray-400">
         No songs available. Please upload some songs.
       </div>
 
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        
+
         <div
           v-for="song in songs"
           :key="song.title"

@@ -2,14 +2,19 @@
     <div>
         <NavBar/>
         <div class="bg-gray-900 text-white min-h-screen">
-            <!-- Header -->
+            
             <section class="bg-gradient-to-r from-green-500 to-blue-500 text-center py-20">
                 <h1 class="text-4xl font-bold mb-4">Your Playlist</h1>
                 <p class="text-lg text-gray-200 mb-6">Manage your favorite songs.</p>
             </section>
         
-            <!-- Playlist Songs -->
+            
             <section class="p-6">
+              <button 
+               class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              @click="fetchPlaylist">
+                Refresh Playlist
+              </button>
                 <div v-if="songs.length === 0" class="text-center text-gray-400">
                 Your playlist is empty.
                 </div>
@@ -24,7 +29,7 @@
                     alt="Song Cover"
                     class="w-full h-48 object-cover rounded-lg mb-4"
                     />
-                    <h3 class="text-lg font-semibold truncate">{{ song.title }}</h3>
+                    <h3 class="text-lg font-semibold truncate">{{ song?.title }}</h3>
                     <p class="text-sm text-gray-400 truncate">{{ song.description }}</p>
                     <audio controls class="w-full mt-4 rounded-lg">
                     <source :src="song.audioUrl" type="audio/mpeg" />
@@ -49,10 +54,10 @@
   import { doc, getDoc, updateDoc } from 'firebase/firestore'
   import { auth } from '@/firebase'
   
-  // Reactive variables
+  
   const songs = ref([])
   
-  // Fetch the user's playlist
+  
   const fetchPlaylist = async () => {
     try {
       const userId = auth.currentUser?.uid
@@ -68,7 +73,7 @@
         const playlistData = playlistSnap.data()
         const songIds = playlistData.songs || []
   
-        // Fetch song details for each song ID
+        
         const songPromises = songIds.map(async (songId) => {
           const songRef = doc(db, 'songs', songId)
           const songSnap = await getDoc(songRef)
@@ -88,7 +93,7 @@
     }
   }
   
-  // Remove a song from the playlist
+  
   const removeSong = async (songId) => {
     try {
       const userId = auth.currentUser?.uid
@@ -104,10 +109,10 @@
         const playlistData = playlistSnap.data()
         const updatedSongs = playlistData.songs.filter((id) => id !== songId)
   
-        // Update the playlist in Firestore
+        
         await updateDoc(playlistRef, { songs: updatedSongs })
   
-        // Update the local songs array
+        
         songs.value = songs.value.filter((song) => song.id !== songId)
       } else {
         console.error('Playlist does not exist')
@@ -117,83 +122,10 @@
     }
   }
   
-  // Fetch the playlist when the component is mounted
+
   onMounted(() => {
     fetchPlaylist()
   })
   </script>
   
-  <style>
-  /* Add Spotify-like styling */
-  body {
-    font-family: 'Arial', sans-serif;
-  }
   
-  .bg-gradient-to-r {
-    background: linear-gradient(to right, #1db954, #1ed760);
-  }
-  
-  .text-white {
-    color: #fff;
-  }
-  
-  .text-gray-400 {
-    color: #b3b3b3;
-  }
-  
-  .bg-gray-900 {
-    background-color: #121212;
-  }
-  
-  .bg-gray-800 {
-    background-color: #181818;
-  }
-  
-  .shadow-lg {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .rounded-lg {
-    border-radius: 0.5rem;
-  }
-  
-  .p-6 {
-    padding: 1.5rem;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .font-bold {
-    font-weight: bold;
-  }
-  
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-  
-  .grid {
-    display: grid;
-  }
-  
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-  
-  .sm\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  
-  .md\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  
-  .lg\:grid-cols-4 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  
-  .gap-6 {
-    gap: 1.5rem;
-  }
-  </style>

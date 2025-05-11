@@ -4,15 +4,21 @@
       <img src="/spotify.png" alt="" class="w-[45px]">
       <h2>{{ isLogin ? 'Connexion' : 'Inscription' }}</h2>
 
-      <!-- Common Fields -->
+    
       <input v-model="email" type="email" placeholder="Email" class="bg-[#1f1f1f] text-white"/>
       <input v-model="password" type="password" placeholder="Mot de passe" class="bg-[#1f1f1f] text-white"/>
 
-      <!-- Additional Fields for Signup -->
+      
       <template v-if="!isLogin">
         <input v-model="firstName" type="text" placeholder="Prénom" class="bg-[#1f1f1f] text-white"/>
         <input v-model="lastName" type="text" placeholder="Nom" class="bg-[#1f1f1f] text-white"/>
+        <div class="m-auto">
+          <label for="cover">Cover Image</label> <br />
+          <input type="file" id="cover" @change="handleImageUpload" accept="image/*" class="text-white" />
+        </div>
       </template>
+
+      
 
       <button @click="handleSubmit" class="submit-btn">
         {{ isLogin ? 'Se connecter' : 'S\'inscrire' }}
@@ -22,6 +28,26 @@
         {{ isLogin ? 'Pas encore inscrit ? Créez un compte' : 'Déjà un compte ? Connectez-vous' }}
       </p>
     </div>
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold mb-8">Welcome to Spotify Clone</h1>
+      <div v-if="authStore.isAuthenticated">
+        <p class="mb-4">Logged in as: <strong>{{ authStore.user?.display_name }}</strong></p>
+        <img v-if="authStore.user?.images?.[0]?.url" :src="authStore.user.images[0].url" alt="Profile" class="mx-auto rounded-full w-24 h-24 mb-4" />
+        <button @click="logout" class="btn-spotify">Logout</button>
+      </div>
+      <div v-else>
+        <button
+          @click="logina"
+          class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full transition-colors duration-200"
+        >
+          Login with Spotify
+        </button>
+      </div>
+    </div>
+  </div>
+
+    
   </div>
 </template>
 
@@ -41,6 +67,41 @@ const firstName = ref('')
 const lastName = ref('')
 const isLogin = ref(true)
 const router = useRouter()
+const imageFile = ref(null)
+
+
+onMounted(() => {
+  const unsubscribe = auth.onAuthStateChanged((user) => {
+    if (!user) {
+      router.push('/')
+    }
+  })
+
+  return () => unsubscribe()
+})
+
+const handleImageUpload = (event) => {
+  imageFile.value = event.target.files[0]
+}
+
+const uploadToCloudinary = async (file, folder = 'profile_images') => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'nuxt-cloudinary-unsigned') // Replace with your upload preset
+      formData.append('folder', folder)
+
+      const res = await fetch('https://api.cloudinary.com/v1_1/djygidsqq/image/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error?.message || 'Failed to upload image')
+      }
+
+      return data.secure_url
+    }
 
 const handleSubmit = async () => {
   try {
@@ -54,6 +115,9 @@ const handleSubmit = async () => {
       await updateProfile(userCredential.user, {
         displayName: `${firstName.value} ${lastName.value}`
       })
+
+
+      const imageUrl = await uploadToCloudinary(imageFile.value, 'covers')
       
 
       
@@ -62,8 +126,10 @@ const handleSubmit = async () => {
         name: `${firstName.value} ${lastName.value}`,
         first_name : `${firstName.value}`,
         userUID : auth.currentUser.uid,
+        imageUrl 
  
       });
+
     }
     
     router.push('/HomePage')
@@ -77,6 +143,41 @@ const toggleForm = () => {
   // Reset additional fields when toggling
   firstName.value = ''
   lastName.value = ''
+}
+
+
+const config = useRuntimeConfig()
+const authStore = useAuthStore()
+
+const logina = () => {
+  const scope = [
+    'user-read-email',
+    'user-read-private',
+    'user-read-playback-state',
+    'user-modify-playback-state',
+    'user-read-currently-playing',
+    'user-read-recently-played',
+    'user-top-read',
+    'playlist-read-private',
+    'playlist-read-collaborative',
+    'playlist-modify-public',
+    'playlist-modify-private',
+    'streaming'
+  ].join(' ')
+
+  const params = new URLSearchParams({
+    client_id: config.public.spotifyClientId,
+    response_type: 'code',
+    redirect_uri: config.public.spotifyRedirectUri,
+    scope
+  })
+
+  window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`
+}
+
+const logout = () => {
+  authStore.logout()
+  window.location.reload()
 }
 </script>
 

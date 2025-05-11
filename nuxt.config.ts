@@ -1,18 +1,35 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  runtimeConfig: {
-    public: {
-      SPOTIFY_CLIENT_ID: 'b14da683ffd84f7e9bc4770798986f3f',
-      SPOTIFY_CLIENT_SECRET: '22ae31d4a3b6439d9c4665d5e7d02022',
-    },
+  devServer: {
+    host: '127.0.0.1',
+    port: 3000
   },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss',
-    '@nuxtjs/cloudinary'
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
+    '@vueuse/nuxt'
   ],
-  cloudinary: {
-    cloudName: 'djygidsqq'
+  runtimeConfig: {
+    public: {
+      spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
+      spotifyRedirectUri: 'http://127.0.0.1:3000/callback'
+    },
+    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET
+  },
+  app: {
+    head: {
+      title: 'Spotify Clone',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'A Spotify clone built with Nuxt.js' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/icon?family=Material+Icons' }
+      ]
+    }
   }
-  
 })

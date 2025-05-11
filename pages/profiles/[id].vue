@@ -2,26 +2,31 @@
     <div>
         <NavBar/>
         <div class="bg-gray-900 text-white min-h-screen">
-        <!-- Profile Header -->
+        
         <section class="bg-gradient-to-r from-green-500 to-blue-500 text-center py-20">
             <h1 class="text-4xl font-bold mb-4">User Profile</h1>
             <p class="text-lg text-gray-200 mb-6">Explore user details and activity.</p>
         </section>
     
-        <!-- User Details -->
+        
         <section class="p-6">
             <div v-if="users.length === 0" class="text-center text-gray-400">
             Loading user profile...
             </div>
             <div v-else class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
             <div v-for="user in users" :key="user.UserUID">
+                  <img
+                :src="user.imageUrl"
+                alt="Cover Image"
+                class="w-full h-48 object-cover rounded-lg mb-4"
+              />
                 <h2 class="text-[36px] text-2xl font-bold mb-2">{{ user.name }}</h2>
-                <p class="text-gray-400 mb-4">{{ user.bio }}</p>
+                
             </div>
             </div>
         </section>
     
-        <!-- User Songs -->
+        
         <section class="p-6">
             <h2 class="text-2xl font-bold mb-4">Songs</h2>
             <div v-if="songs.length === 0" class="text-center text-gray-400">
@@ -34,7 +39,13 @@
                 class="bg-gray-800 p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
             >
                 <img :src="song.imageUrl" class="w-[80px] mb-[10px]">
-                <h3 class="text-lg font-semibold truncate">{{ song.title }}</h3>
+                <h3 class="text-lg font-semibold truncate">
+                  <NuxtLink
+                  :to="`/songs/${song.id}`"
+                  >
+                    {{ song.title }}
+                  </NuxtLink>
+                </h3>
                 <p class="text-sm text-gray-400 truncate">{{ song.description }}</p>
                 
             </div>
@@ -46,39 +57,39 @@
   
   <script setup>
   import { db } from "@/firebase"
-  import { ref, onMounted, onUnmounted, watch } from 'vue'
+  import { ref, onMounted, onUnmounted} from 'vue'
   import { useRoute } from 'vue-router'
   import { collection, query, where, onSnapshot } from "firebase/firestore"
   
-  // Reactive variables
+
   const users = ref([])
   const songs = ref([])
   
-  // Get route parameter
+  
   const route = useRoute()
   const id = route.params.id
   
-  // Unsubscribe references
+  
   let unsubscribeUser
   let unsubscribeSongs
   
   onMounted(() => {
-    // Fetch user data
+    
     const userQuery = query(collection(db, "users"), where("userUID", "==", id))
     unsubscribeUser = onSnapshot(userQuery, (querySnapshot) => {
-      users.value = [] // Clear the array before adding new data
+      users.value = [] 
       querySnapshot.forEach((doc) => {
-        users.value.push(doc.data()) // Add user data to the array
+        users.value.push(doc.data()) 
       })
   
-      // Fetch songs after user data is loaded
+      
       if (users.value.length > 0) {
         const artistID = users.value[0].userUID
         const songQuery = query(collection(db, "songs"), where("ArtistID", "==", artistID))
         unsubscribeSongs = onSnapshot(songQuery, (querySnapshot) => {
-          songs.value = [] // Clear the array before adding new data
+          songs.value = [] 
           querySnapshot.forEach((doc) => {
-            songs.value.push(doc.data()) // Add song data to the array
+            songs.value.push(doc.data()) 
           })
         })
       }
@@ -86,7 +97,7 @@
   })
   
   onUnmounted(() => {
-    // Clean up Firestore listeners
+    
     if (unsubscribeUser) unsubscribeUser()
     if (unsubscribeSongs) unsubscribeSongs()
   })

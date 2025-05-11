@@ -26,21 +26,19 @@
   import { useRoute } from 'vue-router'
   import { doc, getDoc } from 'firebase/firestore'
   
-  // Get the song ID from the route parameters
-  const route = useRoute()
-  const songId = route.params.id
+  const songId = useRoute().params.id
   
-  // Reactive variable to store the song data
+
   const song = ref(null)
   
-  // Fetch the song from Firestore when the component is mounted
+  
   onMounted(async () => {
     try {
-      const docRef = doc(db, 'songs', songId) // Reference to the specific document
-      const docSnap = await getDoc(docRef) // Fetch the document
+      const docRef = doc(db, 'songs', songId)
+      const docSnap = await getDoc(docRef) 
   
       if (docSnap.exists()) {
-        song.value = docSnap.data() // Store the document data in the reactive variable
+        song.value = docSnap.data() 
       } else {
         console.error('No such document!')
       }
